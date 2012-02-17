@@ -13,6 +13,13 @@ Patch0:		%{name}-3.8.0-include.patch
 Patch1:		%{name}-3.12.0-boost-1.48.0-bfs.patch
 Patch2:		%{name}-gcc47.patch
 Patch3:		%{name}-3.2.2-hdf5.patch
+BuildRequires:	Mesa-libOSMesa-devel
+BuildRequires:	QtDesigner-devel
+BuildRequires:	QtHelp-devel
+BuildRequires:	QtSql-devel
+BuildRequires:	QtSql-sqlite
+BuildRequires:	QtUiTools-devel
+BuildRequires:	QtWebKit-devel
 BuildRequires:	boost-devel
 BuildRequires:	cmake
 BuildRequires:	desktop-file-utils
@@ -26,16 +33,9 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libtheora-devel
 BuildRequires:	libtiff-devel
-BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	openssl-devel
 BuildRequires:	python-devel
 BuildRequires:	qt4-build
-BuildRequires:	QtWebKit-devel
-BuildRequires:	QtSql-devel
-BuildRequires:	QtSql-sqlite
-BuildRequires:	QtUiTools-devel
-BuildRequires:	QtHelp-devel
-BuildRequires:	QtDesigner-devel
 BuildRequires:	readline-devel
 BuildRequires:	tk-devel
 BuildRequires:	wget
@@ -96,7 +96,8 @@ Documentation files for ParaView.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
+# We don't have boot 1.48 yet
+#%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 #Remove included hdf5 just to be sure
@@ -145,7 +146,8 @@ install %SOURCE1 $RPM_BUILD_ROOT%{_pixmapsdir}
 install %SOURCE2 $RPM_BUILD_ROOT%{_datadir}/mime/packages
 
 cd build
-%{__make} install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT
 
 #Create desktop file
 cat > $RPM_BUILD_ROOT%{_desktopdir}/paraview.desktop <<EOF
