@@ -1,7 +1,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	3.12.0
-Release:	0.1
+Release:	0.2
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -40,11 +40,11 @@ BuildRequires:	readline-devel
 BuildRequires:	tk-devel
 BuildRequires:	wget
 BuildRequires:	zlib-devel
-Requires:	%{name}-data = %{version}-%{release}
-Requires:	%{name}-doc = %{version}-%{release}
 Requires(post):	desktop-file-utils
 Requires(postun):	desktop-file-utils
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		skip_post_check_so	lib.*Python.*\.so.*
 
 %description
 ParaView is an application designed with the need to visualize large
@@ -66,15 +66,6 @@ of Tcl/Tk and C++.
 NOTE: The version in this package has NOT been compiled with MPI
 support.
 
-%package        data
-Summary:	Data files for ParaView
-Group:		Applications/Engineering
-Requires:	%{name} = %{version}-%{release}
-BuildArch:	noarch
-
-%description    data
-Data files for ParaView.
-
 %package        devel
 Summary:	Development files for %{name}
 Group:		Development/Libraries
@@ -83,15 +74,6 @@ Requires:	%{name}%{?_isa} = %{version}-%{release}
 %description    devel
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
-
-%package        doc
-Summary:	Documentation files for ParaView
-Group:		Applications/Engineering
-Requires:	%{name} = %{version}-%{release}
-BuildArch:	noarch
-
-%description    doc
-Documentation files for ParaView.
 
 %prep
 %setup -q
@@ -138,19 +120,17 @@ cd build
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_desktopdir}
-install -d $RPM_BUILD_ROOT%{_pixmapsdir}
-install -d $RPM_BUILD_ROOT%{_datadir}/mime/packages
+install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir},%{_datadir}/mime/packages}
 
-install %SOURCE1 $RPM_BUILD_ROOT%{_pixmapsdir}
-install %SOURCE2 $RPM_BUILD_ROOT%{_datadir}/mime/packages
+install %{SOURCE1} $RPM_BUILD_ROOT%{_pixmapsdir}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/mime/packages
 
 cd build
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 #Create desktop file
-cat > $RPM_BUILD_ROOT%{_desktopdir}/paraview.desktop <<EOF
+cat > $RPM_BUILD_ROOT%{_desktopdir}/%{name}.desktop <<EOF
 [Desktop Entry]
 Encoding=UTF-8
 Name=ParaView Viewer
@@ -158,17 +138,17 @@ GenericName=Data Viewer
 Comment=ParaView allows viewing of large data sets
 Type=Application
 Terminal=false
-Icon=paraview_22x22
+Icon=ParaView_22x22
 MimeType=application/x-paraview;
 Categories=Application;Graphics;
 Exec=paraview
 EOF
 
-#Install vtk*Python.so by hand for now
+# Install vtk*Python.so by hand for now
 cp -p bin/vtk*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/
 mv $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/vtkPV*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/
 
-#Cleanup vtk binaries
+# Cleanup vtk binaries
 rm $RPM_BUILD_ROOT%{_bindir}/vtk*
 
 %clean
@@ -177,15 +157,11 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/ldconfig
 %update_desktop_database
+%update_mime_database
 
 %postun
 /sbin/ldconfig
 %update_desktop_database
-
-%post data
-%update_mime_database
-
-%postun data
 %update_mime_database
 
 %files
@@ -199,13 +175,35 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/pvrenderserver
 %attr(755,root,root) %{_bindir}/pvserver
 %attr(755,root,root) %{_bindir}/smTestDriver
-%{_libdir}/paraview/
-
-%files data
-%defattr(644,root,root,755)
-%{_desktopdir}/fedora-paraview.desktop
-%{_pixmapsdir}/paraview_22x22.png
-%{_datadir}/mime/packages/paraview.xml
+%dir %{_libdir}/paraview/
+%attr(755,root,root) %{_libdir}/paraview/paraview
+%attr(755,root,root) %{_libdir}/paraview/pvbatch
+%attr(755,root,root) %{_libdir}/paraview/pvdataserver
+%attr(755,root,root) %{_libdir}/paraview/pvpython
+%attr(755,root,root) %{_libdir}/paraview/pvrenderserver
+%attr(755,root,root) %{_libdir}/paraview/pvserver
+%attr(755,root,root) %{_libdir}/paraview/smTestDriver
+%attr(755,root,root) %{_libdir}/paraview/lib*.so*
+%{_libdir}/paraview/CMake
+%{_libdir}/paraview/*.cmake
+%{_libdir}/paraview/doc
+%{_libdir}/paraview/*.py
+%{_libdir}/paraview/testing
+%{_libdir}/paraview/.plugins
+%{_libdir}/paraview/SESAMEConversions.xml
+%{_libdir}/paraview/hints
+%{_libdir}/paraview/ParaViewCore
+%dir %{_libdir}/paraview/site-packages
+%dir %{_libdir}/paraview/site-packages/paraview
+%{_libdir}/paraview/site-packages/paraview/pv_compile_complete
+%{_libdir}/paraview/site-packages/paraview/*.py*
+%attr(755,root,root) %{_libdir}/paraview/site-packages/paraview/*.so
+%{_libdir}/paraview/site-packages/paraview/demos
+%{_libdir}/paraview/site-packages/paraview/vtk
+%{_desktopdir}/ParaView.desktop
+%{_pixmapsdir}/ParaView_22x22.png
+%{_datadir}/mime/packages/ParaView.xml
+%{_datadir}/doc/paraview-3.12/paraview.qch
 
 %files devel
 %defattr(644,root,root,755)
