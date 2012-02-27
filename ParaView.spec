@@ -1,7 +1,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	3.12.0
-Release:	1
+Release:	2
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -203,6 +203,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_desktopdir}/ParaView.desktop
 %{_pixmapsdir}/ParaView_22x22.png
 %{_datadir}/mime/packages/ParaView.xml
+%dir %{_datadir}/doc/paraview-3.12
 %{_datadir}/doc/paraview-3.12/paraview.qch
 
 %files devel
