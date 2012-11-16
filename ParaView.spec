@@ -1,7 +1,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	3.14.1
-Release:	1
+Release:	2
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
