@@ -1,24 +1,28 @@
 Summary:	Parallel visualization application
 Name:		ParaView
-Version:	3.12.0
-Release:	3
+Version:	3.14.1
+Release:	1
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
-Source0:	http://www.paraview.org/files/v3.12/%{name}-%{version}.tar.gz
-# Source0-md5:	8feabc6261e2060648eaac593d85b1de
+Source0:	http://www.paraview.org/files/v3.14/%{name}-%{version}-Source.tar.gz
+# Source0-md5:	039c612777f5eb7bba5d37319f34c922
 Source1:	%{name}_22x22.png
 Source2:	%{name}.xml
 Patch0:		%{name}-3.8.0-include.patch
-Patch1:		%{name}-3.12.0-boost-1.48.0-bfs.patch
-Patch2:		%{name}-gcc47.patch
-Patch3:		%{name}-3.2.2-hdf5.patch
+Patch1:		%{name}-gcc47.patch
+Patch2:		%{name}-3.2.2-hdf5.patch
+Patch3:         %{name}-kwprocessxml_rpath.patch
+Patch4:         %{name}-vtkboost.patch
+Patch5:		%{name}-vtk-use-system-libs.patch
+Patch6:		%{name}-vtknetcdf-lm.patch
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
 BuildRequires:	QtSql-devel
 BuildRequires:	QtSql-sqlite
 BuildRequires:	QtUiTools-devel
+BuildRequires:	QtXmlPatterns-devel
 BuildRequires:	QtWebKit-devel
 BuildRequires:	boost-devel
 BuildRequires:	cmake
@@ -42,6 +46,7 @@ BuildRequires:	wget
 BuildRequires:	zlib-devel
 Requires(post):	desktop-file-utils
 Requires(postun):	desktop-file-utils
+%requires_eq_to	hdf5 hdf5-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		skip_post_check_so	lib.*Python.*\.so.*
@@ -76,12 +81,14 @@ The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}-Source
 %patch0 -p1
-# We don't have boot 1.48 yet
-#%patch1 -p1
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p0
+%patch6 -p1
 #Remove included hdf5 just to be sure
 rm -r VTK/Utilities/vtkhdf5
 
@@ -100,11 +107,14 @@ cd build
 	-DPARAVIEW_ENABLE_PYTHON:BOOL=ON \
 	-DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF \
 	-DPARAVIEW_INSTALL_DEVELOPMENT:BOOL=ON \
+	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
 	-DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
 	-DVTK_USE_BOOST:BOOL=ON \
 	-DVTK_USE_INFOVIS:BOOL=OFF \
 	-DVTK_USE_N_WAY_ARRAYS:BOOL=ON \
 	-DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON \
+	-DVTK_USE_SYSTEM_LIBRARIES=ON \
+	-DVTK_USE_SYSTEM_HDF5=ON \
 	-DVTK_USE_SYSTEM_EXPAT:BOOL=ON \
 	-DVTK_USE_SYSTEM_FREETYPE:BOOL=ON \
 	-DVTK_USE_SYSTEM_HDF5:BOOL=ON \
@@ -112,9 +122,12 @@ cd build
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
 	-DVTK_USE_SYSTEM_TIFF:BOOL=ON \
 	-DVTK_USE_SYSTEM_ZLIB:BOOL=ON \
+	-DVTK_USE_SYSTEM_LIBPROJ4=OFF \
 	-DXDMF_WRAP_PYTHON:BOOL=ON \
 	-DBUILD_DOCUMENTATION:BOOL=ON \
 	-DBUILD_EXAMPLES:BOOL=ON
+
+# -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=$RPM_BUILD_ROOT" \
 
 %{__make} VERBOSE=1
 
@@ -144,9 +157,13 @@ Categories=Application;Graphics;
 Exec=paraview
 EOF
 
+# Move python files by hand for now
+%{__mv} $RPM_BUILD_ROOT%{_bindir}/Python/vtk $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/
+%{__rm} -r $RPM_BUILD_ROOT%{_bindir}/Python
+
 # Install vtk*Python.so by hand for now
-cp -p bin/vtk*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/
-mv $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/vtkPV*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/vtk*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/
+%{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/vtkPV*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/
 
 # Cleanup vtk binaries
 rm $RPM_BUILD_ROOT%{_bindir}/vtk*
@@ -190,7 +207,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/paraview/*.py
 %{_libdir}/paraview/testing
 %{_libdir}/paraview/.plugins
-%{_libdir}/paraview/SESAMEConversions.xml
 %{_libdir}/paraview/hints
 %{_libdir}/paraview/ParaViewCore
 %dir %{_libdir}/paraview/site-packages
@@ -200,13 +216,30 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/paraview/site-packages/paraview/*.so
 %{_libdir}/paraview/site-packages/paraview/demos
 %{_libdir}/paraview/site-packages/paraview/vtk
+%dir %{_libdir}/paraview/site-packages/vtk
+%{_libdir}/paraview/site-packages/vtk/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/gtk
+%{_libdir}/paraview/site-packages/vtk/gtk/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/qt
+%{_libdir}/paraview/site-packages/vtk/qt/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/qt4
+%{_libdir}/paraview/site-packages/vtk/qt4/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/test
+%{_libdir}/paraview/site-packages/vtk/test/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/tk
+%{_libdir}/paraview/site-packages/vtk/tk/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/util
+%{_libdir}/paraview/site-packages/vtk/util/*.py*
+%dir %{_libdir}/paraview/site-packages/vtk/wx
+%{_libdir}/paraview/site-packages/vtk/wx/*.py*
 %{_desktopdir}/ParaView.desktop
 %{_pixmapsdir}/ParaView_22x22.png
 %{_datadir}/mime/packages/ParaView.xml
-%dir %{_datadir}/doc/paraview-3.12
-%{_datadir}/doc/paraview-3.12/paraview.qch
+%dir %{_datadir}/doc/paraview-3.14
+%{_datadir}/doc/paraview-3.14/paraview.qch
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/kwProcessXML
+%attr(755,root,root) %{_libdir}/paraview/kwProcessXML-real
 %{_includedir}/paraview/
