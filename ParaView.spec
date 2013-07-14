@@ -1,7 +1,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	4.0.1
-Release:	0.1
+Release:	1
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -185,8 +185,10 @@ EOF
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/vtk*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/
 %{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/vtkPV*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/
 
-# Cleanup vtk binaries
-rm $RPM_BUILD_ROOT%{_bindir}/vtk*
+# Cleanup vtk conflicting binaries
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/vtk{EncodeString,HashSource,Parse{Java,OGLExt},ProcessShader,Wrap{Hierarchy,Java,Python,Tcl,TclInit,PythonInit}}
+
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/paraview/lib*.a
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -206,7 +208,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc License_v1.2.txt
 %attr(755,root,root) %{_bindir}/paraview
 %attr(755,root,root) %{_bindir}/pvbatch
-%attr(755,root,root) %{_bindir}/pvblot
 %attr(755,root,root) %{_bindir}/pvdataserver
 %attr(755,root,root) %{_bindir}/pvpython
 %attr(755,root,root) %{_bindir}/pvrenderserver
@@ -221,27 +222,20 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/paraview/pvserver
 %attr(755,root,root) %{_libdir}/paraview/smTestDriver
 %attr(755,root,root) %{_libdir}/paraview/lib*.so*
-%{_libdir}/paraview/CMake
-%{_libdir}/paraview/*.cmake
-%{_libdir}/paraview/doc
-%{_libdir}/paraview/*.py
-%{_libdir}/paraview/testing
 %{_libdir}/paraview/.plugins
-%{_libdir}/paraview/hints
-%{_libdir}/paraview/ParaViewCore
 %dir %{_libdir}/paraview/site-packages
+%{_libdir}/paraview/site-packages/autobahn
 %dir %{_libdir}/paraview/site-packages/paraview
 %{_libdir}/paraview/site-packages/paraview/pv_compile_complete
 %{_libdir}/paraview/site-packages/paraview/*.py*
 %attr(755,root,root) %{_libdir}/paraview/site-packages/paraview/*.so
 %{_libdir}/paraview/site-packages/paraview/demos
 %{_libdir}/paraview/site-packages/paraview/vtk
+%{_libdir}/paraview/site-packages/twisted
 %dir %{_libdir}/paraview/site-packages/vtk
 %{_libdir}/paraview/site-packages/vtk/*.py*
 %dir %{_libdir}/paraview/site-packages/vtk/gtk
 %{_libdir}/paraview/site-packages/vtk/gtk/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/qt
-%{_libdir}/paraview/site-packages/vtk/qt/*.py*
 %dir %{_libdir}/paraview/site-packages/vtk/qt4
 %{_libdir}/paraview/site-packages/vtk/qt4/*.py*
 %dir %{_libdir}/paraview/site-packages/vtk/test
@@ -252,14 +246,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/paraview/site-packages/vtk/util/*.py*
 %dir %{_libdir}/paraview/site-packages/vtk/wx
 %{_libdir}/paraview/site-packages/vtk/wx/*.py*
+%{_libdir}/paraview/site-packages/zope
+%{_libdir}/paraview/www
 %{_desktopdir}/ParaView.desktop
 %{_pixmapsdir}/ParaView_22x22.png
 %{_datadir}/mime/packages/ParaView.xml
-%dir %{_datadir}/doc/paraview-3.14
-%{_datadir}/doc/paraview-3.14/paraview.qch
+%dir %{_datadir}/doc/paraview-4.0
+%{_datadir}/doc/paraview-4.0/paraview.qch
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/kwProcessXML
-%attr(755,root,root) %{_libdir}/paraview/kwProcessXML-real
-%{_includedir}/paraview/
+%attr(755,root,root) %{_bindir}/vtkkwProcessXML
+%attr(755,root,root) %{_bindir}/vtkWrapClientServer
+%{_includedir}/paraview
+%{_datadir}/cmake/paraview
