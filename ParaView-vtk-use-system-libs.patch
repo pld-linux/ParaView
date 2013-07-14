@@ -1,8 +1,8 @@
 diff -up VTK/CMakeLists.txt.system VTK/CMakeLists.txt
---- VTK/CMakeLists.txt.system	2010-09-27 14:40:00.000000000 -0600
-+++ VTK/CMakeLists.txt	2011-02-08 14:08:29.367122550 -0700
-@@ -106,6 +106,11 @@ IF(CMAKE_CONFIGURATION_TYPES)
- ENDIF(CMAKE_CONFIGURATION_TYPES)
+--- VTK/CMakeLists.txt.system	2012-12-03 08:31:29.000000000 -0700
++++ VTK/CMakeLists.txt	2012-12-06 09:58:22.809749444 -0700
+@@ -97,6 +97,11 @@ set(VTK_INSTALL_INCLUDE_DIR_CM24 ${VTK_I
+ set(VTK_INSTALL_DOXYGEN_DIR_CM24 ${VTK_INSTALL_DATA_DIR}/doxygen)
  
  #-----------------------------------------------------------------------------
 +# Do we try to use system libraries by default?
@@ -10,17 +10,18 @@ diff -up VTK/CMakeLists.txt.system VTK/CMakeLists.txt
 +MARK_AS_ADVANCED(VTK_USE_SYSTEM_LIBRARIES)
 +
 +#-----------------------------------------------------------------------------
- # Load some macros.
- INCLUDE(vtkDependentOption)
- INCLUDE(vtkThirdParty)
-diff -up VTK/CMake/vtkThirdParty.cmake.system VTK/CMake/vtkThirdParty.cmake
---- VTK/CMake/vtkThirdParty.cmake.system	2010-09-27 14:40:00.000000000 -0600
-+++ VTK/CMake/vtkThirdParty.cmake	2011-02-08 14:07:46.424662568 -0700
-@@ -1,6 +1,6 @@
- #-----------------------------------------------------------------------------
- MACRO(VTK_THIRD_PARTY_OPTION upper lower)
--  OPTION(VTK_USE_SYSTEM_${upper} "Use the system's ${lower} library." OFF)
-+  OPTION(VTK_USE_SYSTEM_${upper} "Use the system's ${lower} library." ${VTK_USE_SYSTEM_LIBRARIES})
-   MARK_AS_ADVANCED(VTK_USE_SYSTEM_${upper})
-   IF(VTK_USE_SYSTEM_${upper})
-     IF(EXISTS ${CMAKE_ROOT}/Modules/Find${upper}.cmake)
+ # The third party macros are still used in one or two third party builds.
+ include(vtkThirdParty)
+ 
+diff -up VTK/CMake/vtkModuleMacros.cmake.system VTK/CMake/vtkModuleMacros.cmake
+--- VTK/CMake/vtkModuleMacros.cmake.system	2012-12-03 08:31:29.000000000 -0700
++++ VTK/CMake/vtkModuleMacros.cmake	2012-12-06 09:58:22.810749439 -0700
+@@ -563,7 +563,7 @@ macro(vtk_module_third_party _pkg)
+     message(FATAL_ERROR "Cannot specify both LIBRARIES and NO_LIBRARIES")
+   endif()
+ 
+-  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" OFF)
++  option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" ${VTK_USE_SYSTEM_LIBRARIES})
+   mark_as_advanced(VTK_USE_SYSTEM_${_upper})
+ 
+   if(VTK_USE_SYSTEM_${_upper})

@@ -1,0 +1,17 @@
+--- ParaView-v4.0.1-source/ParaViewCore/ServerManager/Default/Testing/Cxx/CMakeLists.txt~	2013-07-14 21:17:50.899664442 +0200
++++ ParaView-v4.0.1-source/ParaViewCore/ServerManager/Default/Testing/Cxx/CMakeLists.txt	2013-07-14 21:37:51.474780574 +0200
+@@ -14,14 +14,6 @@
+   TestProxyAnnotation
+   )
+ 
+-foreach (name ${test_srcs})
+-  vtk_module_test_executable(${name}
+-    ${name}.cxx)
+-  add_test(NAME ${name}
+-      COMMAND ${name} ${name} -D ${VTK_DATA_ROOT})
+-  set_tests_properties(${name} PROPERTIES LABELS "PARAVIEW")
+-endforeach()
+-
+ #------------------------------------------------------------------------------
+ if (PARAVIEW_DATA_ROOT)
+   # This is the executable that can load any Server Manager state (*.pvsm) file

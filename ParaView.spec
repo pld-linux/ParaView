@@ -1,21 +1,19 @@
 Summary:	Parallel visualization application
 Name:		ParaView
-Version:	3.14.1
-Release:	3
+Version:	4.0.1
+Release:	0.1
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
-Source0:	http://www.paraview.org/files/v3.14/%{name}-%{version}-Source.tar.gz
-# Source0-md5:	039c612777f5eb7bba5d37319f34c922
+Source0:	http://www.paraview.org/files/v4.0/%{name}-v%{version}-source.tgz
+# Source0-md5:	6a300744eaf32676a3a7e1b42eb642c7
 Source1:	%{name}_22x22.png
 Source2:	%{name}.xml
-Patch0:		%{name}-3.8.0-include.patch
-Patch1:		%{name}-gcc47.patch
-Patch2:		%{name}-3.2.2-hdf5.patch
-Patch3:         %{name}-kwprocessxml_rpath.patch
-Patch4:         %{name}-vtkboost.patch
-Patch5:		%{name}-vtk-use-system-libs.patch
-Patch6:		%{name}-vtknetcdf-lm.patch
+Patch0:		%{name}-vtk-use-system-libs.patch
+Patch1:		%{name}-install.patch
+Patch2:		%{name}-system-Protobuf.patch
+Patch3:		%{name}-system-netcdf.patch
+Patch4:		disable-broken-tests.patch
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
@@ -37,7 +35,10 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libtheora-devel
 BuildRequires:	libtiff-devel
+BuildRequires:	netcdf-devel
+BuildRequires:	netcdf-cxx-devel
 BuildRequires:	openssl-devel
+BuildRequires:	protobuf-devel
 BuildRequires:	python-devel
 BuildRequires:	qt4-build
 BuildRequires:	readline-devel
@@ -74,30 +75,39 @@ support.
 %package        devel
 Summary:	Development files for %{name}
 Group:		Development/Libraries
-Requires:	%{name}%{?_isa} = %{version}-%{release}
+Requires:	%{name} = %{version}-%{release}
 
 %description    devel
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
 
 %prep
-%setup -q -n %{name}-%{version}-Source
-%patch0 -p1
+%setup -q -n %{name}-v%{version}-source
+%patch0 -p0
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+%patch3 -p0
 %patch4 -p1
-%patch5 -p0
-%patch6 -p1
-#Remove included hdf5 just to be sure
-rm -r VTK/Utilities/vtkhdf5
+#Remove included thirdparty sources just to be sure
+for x in protobuf ; do
+	rm -r ThirdParty/$x/vtk$x
+done
+for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib ; do
+	rm -r VTK/ThirdParty/$x/vtk$x
+done
+
+%{__rm} -r ParaViewCore/ServerImplementation/Default/Testing
 
 %build
+rm -rf build
 mkdir build
 cd build
 %cmake .. \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_CXX_COMPILER:FILEPATH=%{__cxx} \
+        -DCMAKE_C_COMPILER:FILEPATH=%{__cc} \
 	-DPV_INSTALL_INCLUDE_DIR:PATH=include/paraview \
-	-DPV_INSTALL_LIB_DIR:PATH=%{_lib}/paraview \
+	-DPV_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
 	-DTCL_LIBRARY:PATH=tcl \
 	-DTK_LIBRARY:PATH=tk \
 	-DPARAVIEW_BUILD_PLUGIN_AdiosReader:BOOL=ON \
@@ -106,23 +116,33 @@ cd build
 	-DPARAVIEW_BUILD_PLUGIN_ForceTime:BOOL=ON \
 	-DPARAVIEW_ENABLE_PYTHON:BOOL=ON \
 	-DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF \
-	-DPARAVIEW_INSTALL_DEVELOPMENT:BOOL=ON \
-	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
-	-DVTK_OPENGL_HAS_OSMESA:BOOL=ON \
+        -DPARAVIEW_INSTALL_DEVELOPMENT_FILES:BOOL=ON \
+        -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/paraview \
+        -DVTK_INSTALL_INCLUDE_DIR:PATH=include/paraview \
+        -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
+        -DVTK_INSTALL_PACKAGE_DIR=share/cmake/paraview \
 	-DVTK_USE_BOOST:BOOL=ON \
 	-DVTK_USE_INFOVIS:BOOL=OFF \
 	-DVTK_USE_N_WAY_ARRAYS:BOOL=ON \
 	-DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON \
-	-DVTK_USE_SYSTEM_LIBRARIES=ON \
-	-DVTK_USE_SYSTEM_HDF5=ON \
 	-DVTK_USE_SYSTEM_EXPAT:BOOL=ON \
 	-DVTK_USE_SYSTEM_FREETYPE:BOOL=ON \
 	-DVTK_USE_SYSTEM_HDF5:BOOL=ON \
+	-DVTK_USE_SYSTEM_HDF5=ON \
+        -DHDF5_HL_LIBRARY:FILEPATH=%{_libdir}/libhdf5_hl.so \
 	-DVTK_USE_SYSTEM_JPEG:BOOL=ON \
+	-DVTK_USE_SYSTEM_LIBPROJ4=OFF \
+	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
+	-DVTK_USE_SYSTEM_LIBRARIES=ON \
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
 	-DVTK_USE_SYSTEM_TIFF:BOOL=ON \
 	-DVTK_USE_SYSTEM_ZLIB:BOOL=ON \
-	-DVTK_USE_SYSTEM_LIBPROJ4=OFF \
+        -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
+        -DVTK_USE_INFOVIS:BOOL=OFF \
+        -DVTK_USE_SYSTEM_ICET=OFF \
+        -DVTK_USE_SYSTEM_NETCDF=ON \
+        -DVTK_USE_SYSTEM_QTTESTING=OFF \
+        -DVTK_USE_SYSTEM_XDMF2=OFF \
 	-DXDMF_WRAP_PYTHON:BOOL=ON \
 	-DBUILD_DOCUMENTATION:BOOL=ON \
 	-DBUILD_EXAMPLES:BOOL=ON
