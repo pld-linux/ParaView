@@ -28,6 +28,7 @@ BuildRequires:	desktop-file-utils
 BuildRequires:	doxygen
 BuildRequires:	expat-devel
 BuildRequires:	freetype-devel
+BuildRequires:	gl2ps-devel
 BuildRequires:	gnuplot
 BuildRequires:	graphviz
 BuildRequires:	hdf5-devel
