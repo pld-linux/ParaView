@@ -18,7 +18,7 @@ BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
 BuildRequires:	QtSql-devel
-BuildRequires:	QtSql-sqlite
+BuildRequires:	QtSql-sqlite3
 BuildRequires:	QtUiTools-devel
 BuildRequires:	QtXmlPatterns-devel
 BuildRequires:	QtWebKit-devel
@@ -47,6 +47,7 @@ BuildRequires:	wget
 BuildRequires:	zlib-devel
 Requires(post):	desktop-file-utils
 Requires(postun):	desktop-file-utils
+Requires:	QtSql-sqlite3
 %requires_eq_to	hdf5 hdf5-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
