@@ -57,10 +57,10 @@ ParaView is an application designed with the need to visualize large
 data sets in mind. The goals of the ParaView project include the
 following:
 
-    - Develop an open-source, multi-platform visualization application.
-    - Support distributed computation models to process large data sets.
-    - Create an open, flexible, and intuitive user interface.
-    - Develop an extensible architecture based on open standards.
+- Develop an open-source, multi-platform visualization application.
+- Support distributed computation models to process large data sets.
+- Create an open, flexible, and intuitive user interface.
+- Develop an extensible architecture based on open standards.
 
 ParaView runs on distributed and shared memory parallel as well as
 single processor systems and has been successfully tested on Windows,
@@ -72,12 +72,12 @@ of Tcl/Tk and C++.
 NOTE: The version in this package has NOT been compiled with MPI
 support.
 
-%package        devel
+%package devel
 Summary:	Development files for %{name}
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
-%description    devel
+%description devel
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
 
@@ -103,9 +103,9 @@ rm -rf build
 mkdir build
 cd build
 %cmake .. \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DCMAKE_CXX_COMPILER:FILEPATH=%{__cxx} \
-        -DCMAKE_C_COMPILER:FILEPATH=%{__cc} \
+	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+	-DCMAKE_CXX_COMPILER:FILEPATH=%{__cxx} \
+	-DCMAKE_C_COMPILER:FILEPATH=%{__cc} \
 	-DPV_INSTALL_INCLUDE_DIR:PATH=include/paraview \
 	-DPV_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
 	-DTCL_LIBRARY:PATH=tcl \
@@ -116,11 +116,11 @@ cd build
 	-DPARAVIEW_BUILD_PLUGIN_ForceTime:BOOL=ON \
 	-DPARAVIEW_ENABLE_PYTHON:BOOL=ON \
 	-DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF \
-        -DPARAVIEW_INSTALL_DEVELOPMENT_FILES:BOOL=ON \
-        -DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/paraview \
-        -DVTK_INSTALL_INCLUDE_DIR:PATH=include/paraview \
-        -DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
-        -DVTK_INSTALL_PACKAGE_DIR=share/cmake/paraview \
+	-DPARAVIEW_INSTALL_DEVELOPMENT_FILES:BOOL=ON \
+	-DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/paraview \
+	-DVTK_INSTALL_INCLUDE_DIR:PATH=include/paraview \
+	-DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
+	-DVTK_INSTALL_PACKAGE_DIR=share/cmake/paraview \
 	-DVTK_USE_BOOST:BOOL=ON \
 	-DVTK_USE_INFOVIS:BOOL=OFF \
 	-DVTK_USE_N_WAY_ARRAYS:BOOL=ON \
@@ -129,7 +129,7 @@ cd build
 	-DVTK_USE_SYSTEM_FREETYPE:BOOL=ON \
 	-DVTK_USE_SYSTEM_HDF5:BOOL=ON \
 	-DVTK_USE_SYSTEM_HDF5=ON \
-        -DHDF5_HL_LIBRARY:FILEPATH=%{_libdir}/libhdf5_hl.so \
+	-DHDF5_HL_LIBRARY:FILEPATH=%{_libdir}/libhdf5_hl.so \
 	-DVTK_USE_SYSTEM_JPEG:BOOL=ON \
 	-DVTK_USE_SYSTEM_LIBPROJ4=OFF \
 	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
@@ -137,12 +137,12 @@ cd build
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
 	-DVTK_USE_SYSTEM_TIFF:BOOL=ON \
 	-DVTK_USE_SYSTEM_ZLIB:BOOL=ON \
-        -DVTK_CUSTOM_LIBRARY_SUFFIX="" \
-        -DVTK_USE_INFOVIS:BOOL=OFF \
-        -DVTK_USE_SYSTEM_ICET=OFF \
-        -DVTK_USE_SYSTEM_NETCDF=ON \
-        -DVTK_USE_SYSTEM_QTTESTING=OFF \
-        -DVTK_USE_SYSTEM_XDMF2=OFF \
+	-DVTK_CUSTOM_LIBRARY_SUFFIX="" \
+	-DVTK_USE_INFOVIS:BOOL=OFF \
+	-DVTK_USE_SYSTEM_ICET=OFF \
+	-DVTK_USE_SYSTEM_NETCDF=ON \
+	-DVTK_USE_SYSTEM_QTTESTING=OFF \
+	-DVTK_USE_SYSTEM_XDMF2=OFF \
 	-DXDMF_WRAP_PYTHON:BOOL=ON \
 	-DBUILD_DOCUMENTATION:BOOL=ON \
 	-DBUILD_EXAMPLES:BOOL=ON
