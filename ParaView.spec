@@ -1,7 +1,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	4.0.1
-Release:	4
+Release:	5
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -129,6 +129,7 @@ cd build
 	-DVTK_USE_OGGTHEORA_ENCODER:BOOL=ON \
 	-DVTK_USE_SYSTEM_EXPAT:BOOL=ON \
 	-DVTK_USE_SYSTEM_FREETYPE:BOOL=ON \
+	-DFREETYPE_INCLUDE_DIRS=%{_includedir}/freetype2 \
 	-DVTK_USE_SYSTEM_HDF5:BOOL=ON \
 	-DVTK_USE_SYSTEM_HDF5=ON \
 	-DHDF5_HL_LIBRARY:FILEPATH=%{_libdir}/libhdf5_hl.so \
