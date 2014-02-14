@@ -16,6 +16,7 @@ Patch3:         %{name}-kwprocessxml_rpath.patch
 Patch4:         %{name}-vtkboost.patch
 Patch5:		%{name}-vtk-use-system-libs.patch
 Patch6:		%{name}-vtknetcdf-lm.patch
+Patch7:		%{name}-freetype.patch
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
@@ -89,6 +90,7 @@ developing applications that use %{name}.
 %patch4 -p1
 %patch5 -p0
 %patch6 -p1
+%patch7 -p0
 #Remove included hdf5 just to be sure
 rm -r VTK/Utilities/vtkhdf5
 

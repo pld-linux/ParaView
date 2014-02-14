@@ -1,0 +1,11 @@
+--- VTK/CMake/FindFREETYPE.cmake~	2011-11-08 20:56:34.000000000 +0000
++++ VTK/CMake/FindFREETYPE.cmake	2014-02-16 03:22:58.280286297 +0000
+@@ -10,7 +10,7 @@
+ # also defined, but not for general use are
+ # FREETYPE_LIBRARY, where to find the FREETYPE library.
+ 
+-FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD ft2build.h)
++FIND_PATH(FREETYPE_INCLUDE_DIR_FT2BUILD freetype2/ft2build.h)
+ 
+ FIND_PATH(FREETYPE_INCLUDE_DIR_FTHEADER freetype/config/ftheader.h
+   /usr/include/freetype2
