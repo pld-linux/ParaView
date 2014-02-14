@@ -13,6 +13,7 @@ Patch0:		%{name}-3.8.0-include.patch
 Patch1:		%{name}-3.12.0-boost-1.48.0-bfs.patch
 Patch2:		%{name}-gcc47.patch
 Patch3:		%{name}-3.2.2-hdf5.patch
+Patch4:		%{name}-freetype.patch
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
@@ -84,6 +85,7 @@ developing applications that use %{name}.
 %patch3 -p1
 #Remove included hdf5 just to be sure
 rm -r VTK/Utilities/vtkhdf5
+%patch4 -p0
 
 %build
 mkdir build
