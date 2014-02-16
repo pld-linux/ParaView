@@ -44,6 +44,7 @@ BuildRequires:	qt4-build
 BuildRequires:	readline-devel
 BuildRequires:	tk-devel
 BuildRequires:	wget
+BuildRequires:	xorg-lib-libXt-devel
 BuildRequires:	zlib-devel
 Requires(post):	desktop-file-utils
 Requires(postun):	desktop-file-utils
