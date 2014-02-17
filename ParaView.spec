@@ -80,8 +80,7 @@ developing applications that use %{name}.
 %prep
 %setup -q
 %patch0 -p1
-# We don't have boot 1.48 yet
-#%patch1 -p1
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 #Remove included hdf5 just to be sure
