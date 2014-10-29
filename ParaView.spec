@@ -91,6 +91,7 @@ developing applications that use %{name}.
 %patch2 -p1
 %patch3 -p0
 %patch4 -p1
+%patch5 -p1
 #Remove included thirdparty sources just to be sure
 for x in protobuf ; do
 	rm -r ThirdParty/$x/vtk$x
