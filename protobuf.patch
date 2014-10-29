@@ -1,0 +1,64 @@
+--- ParaView-v4.0.1-source/ParaViewCore/ServerImplementation/Core/vtkPVMessage.proto.orig	2014-10-29 21:55:42.582965302 +0100
++++ ParaView-v4.0.1-source/ParaViewCore/ServerImplementation/Core/vtkPVMessage.proto	2014-10-29 21:58:20.865441145 +0100
+@@ -62,10 +62,10 @@
+ {
+   extend Message {
+     // The classname for the driver process i.e. the client, typically
+-    required string client_class = 10;
++    optional string client_class = 10;
+ 
+     // The classname for the process where the processing occurs
+-    required string server_class = 11;
++    optional string server_class = 11;
+   }
+ }
+ 
+@@ -98,8 +98,8 @@
+     }
+ 
+   extend Message {
+-    required string     xml_group           = 20;
+-    required string     xml_name            = 21;
++    optional string     xml_group           = 20;
++    optional string     xml_name            = 21;
+     optional string     xml_sub_proxy_name  = 22;
+     repeated Property   property            = 23;
+     repeated SubProxy   subproxy            = 24;
+@@ -204,7 +204,7 @@
+   }
+ 
+   extend Message {
+-    required uint32 view      = 70;
++    optional uint32 view      = 70;
+     optional double x         = 71 [default = 0];
+     optional double y         = 72 [default = 0];
+     optional bool   forceShow = 73 [default = false];
+@@ -217,7 +217,7 @@
+ message ChartViewBounds {
+ 
+   extend Message {
+-    required uint32 view  = 75;
++    optional uint32 view  = 75;
+     repeated double range = 76;
+   }
+ }
+@@ -240,8 +240,8 @@
+ 
+ message ChatMessage {
+   extend Message {
+-    required uint32 author = 84;
+-    required string txt    = 85;
++    optional uint32 author = 84;
++    optional string txt    = 85;
+   }
+ }
+ 
+@@ -254,7 +254,7 @@
+   }
+ 
+   extend Message {
+-    required QtEventType type  = 98;
++    optional QtEventType type  = 98;
+   }
+ }
+ 
