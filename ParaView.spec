@@ -1,12 +1,12 @@
 Summary:	Parallel visualization application
 Name:		ParaView
-Version:	4.2.0
-Release:	0.1
+Version:	4.0.1
+Release:	9
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
-Source0:	http://www.paraview.org/files/v4.2/%{name}-v%{version}-source.tar.gz
-# Source0-md5:	77cf0e3804eb7bb91d2d94b10bd470f4
+Source0:	http://www.paraview.org/files/v4.0/%{name}-v%{version}-source.tgz
+# Source0-md5:	6a300744eaf32676a3a7e1b42eb642c7
 Source1:	%{name}_22x22.png
 Source2:	%{name}.xml
 Patch0:		%{name}-vtk-use-system-libs.patch
@@ -87,10 +87,10 @@ developing applications that use %{name}.
 %prep
 %setup -q -n %{name}-v%{version}-source
 %patch0 -p0
-#%patch1 -p1
-#%patch2 -p1
-#%patch3 -p0
-#%patch4 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p0
+%patch4 -p1
 %patch5 -p1
 #Remove included thirdparty sources just to be sure
 for x in protobuf ; do
@@ -99,6 +99,8 @@ done
 for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib ; do
 	rm -r VTK/ThirdParty/$x/vtk$x
 done
+
+%{__rm} -r ParaViewCore/ServerImplementation/Default/Testing
 
 %build
 rm -rf build
@@ -140,7 +142,6 @@ cd build
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
 	-DVTK_USE_SYSTEM_TIFF:BOOL=ON \
 	-DVTK_USE_SYSTEM_ZLIB:BOOL=ON \
-	-DVTK_USE_SYSTEM_PROTOBUF:BOOL=ON \
 	-DVTK_CUSTOM_LIBRARY_SUFFIX="" \
 	-DVTK_USE_INFOVIS:BOOL=OFF \
 	-DVTK_USE_SYSTEM_ICET=OFF \
