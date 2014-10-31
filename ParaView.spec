@@ -1,7 +1,11 @@
+#
+# Conditional build:
+%bcond_with	system_protobuf		# build with system protobuf library
+#
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	4.0.1
-Release:	9
+Release:	10
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -40,7 +44,7 @@ BuildRequires:	libtiff-devel
 BuildRequires:	netcdf-devel
 BuildRequires:	netcdf-cxx-devel
 BuildRequires:	openssl-devel
-BuildRequires:	protobuf-devel
+%{?with_system_protobuf:BuildRequires:	protobuf-devel}
 BuildRequires:	python-devel
 BuildRequires:	qt4-build
 BuildRequires:	readline-devel
@@ -88,14 +92,18 @@ developing applications that use %{name}.
 %setup -q -n %{name}-v%{version}-source
 %patch0 -p0
 %patch1 -p1
-%patch2 -p1
 %patch3 -p0
 %patch4 -p1
+
+%if %{with system_protobuf}
+%patch2 -p1
 %patch5 -p1
 #Remove included thirdparty sources just to be sure
 for x in protobuf ; do
 	rm -r ThirdParty/$x/vtk$x
 done
+%endif
+
 for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib ; do
 	rm -r VTK/ThirdParty/$x/vtk$x
 done
@@ -140,6 +148,7 @@ cd build
 	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
 	-DVTK_USE_SYSTEM_LIBRARIES=ON \
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
+	-DVTK_USE_SYSTEM_PROTOBUF:BOOL=%{?with_system_protobuf:ON}%{!?with_system_protobuf:OFF} \
 	-DVTK_USE_SYSTEM_TIFF:BOOL=ON \
 	-DVTK_USE_SYSTEM_ZLIB:BOOL=ON \
 	-DVTK_CUSTOM_LIBRARY_SUFFIX="" \
