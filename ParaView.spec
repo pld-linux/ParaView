@@ -59,6 +59,9 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		skip_post_check_so	lib.*Python.*\.so.*
 
+# avoid provide clash with vtk.spec
+%define		_noautoprov		libvtk.*\.so.* vtk.*\.so.*
+
 %description
 ParaView is an application designed with the need to visualize large
 data sets in mind. The goals of the ParaView project include the
