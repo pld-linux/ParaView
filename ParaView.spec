@@ -5,7 +5,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	4.0.1
-Release:	11
+Release:	12
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -61,6 +61,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # avoid provide clash with vtk.spec
 %define		_noautoprov		libvtk.*\.so.* vtk.*\.so.*
+%define		_noautoreq		libvtk.*\.so.* vtk.*\.so.*
 
 %description
 ParaView is an application designed with the need to visualize large
