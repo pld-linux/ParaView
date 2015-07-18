@@ -5,7 +5,7 @@
 Summary:	Parallel visualization application
 Name:		ParaView
 Version:	4.0.1
-Release:	12
+Release:	13
 License:	BSD
 Group:		Applications/Engineering
 URL:		http://www.paraview.org/
@@ -19,6 +19,7 @@ Patch2:		%{name}-system-Protobuf.patch
 Patch3:		%{name}-system-netcdf.patch
 Patch4:		disable-broken-tests.patch
 Patch5:		protobuf.patch
+Patch6:		freetype.patch
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
@@ -98,6 +99,7 @@ developing applications that use %{name}.
 %patch1 -p1
 %patch3 -p0
 %patch4 -p1
+%patch6 -p1
 
 %if %{with system_protobuf}
 %patch2 -p1
