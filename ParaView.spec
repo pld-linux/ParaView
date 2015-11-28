@@ -3,12 +3,12 @@
 %bcond_with	system_protobuf		# build with system protobuf library
 #
 Summary:	Parallel visualization application
+Summary(pl.UTF-8):	Aplikacja do równoległej wizualizacji
 Name:		ParaView
 Version:	4.0.1
-Release:	13
+Release:	14
 License:	BSD
 Group:		Applications/Engineering
-URL:		http://www.paraview.org/
 Source0:	http://www.paraview.org/files/v4.0/%{name}-v%{version}-source.tgz
 # Source0-md5:	6a300744eaf32676a3a7e1b42eb642c7
 Source1:	%{name}_22x22.png
@@ -20,6 +20,7 @@ Patch3:		%{name}-system-netcdf.patch
 Patch4:		disable-broken-tests.patch
 Patch5:		protobuf.patch
 Patch6:		freetype.patch
+URL:		http://www.paraview.org/
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	QtDesigner-devel
 BuildRequires:	QtHelp-devel
@@ -84,14 +85,40 @@ of Tcl/Tk and C++.
 NOTE: The version in this package has NOT been compiled with MPI
 support.
 
+%description -l pl.UTF-8
+ParaView to aplikacja zaprojektowana z myślą o potrzebie wizualizacji
+dużych zbiorów danych. Cele projektu ParaView obejmują:
+- rozwijanie mającej otwarte źródła, wieloplatformowej aplikacji do
+  wizualizacji
+- obsługę rozproszonych modeli obliczeń do przetwarzania dużych
+  zbiorów danych
+- stworzenie otwartego, elastycznego i intuicyjnego interfejsu
+  użytkownika
+- rozwijanie rozszerzalnej architektury opartej na otwartych
+  standardach
+
+ParaView działa równolegle z rozproszoną i współdzieloną pamięcią, jak
+i na systemach z jednym procesorem; został przetestowany na systemach
+Windows, Linux, różnych uniksowych stacjach roboczych i klastrach.
+Wewnętrznie ParaView wykorzystuje VTK (Visualization Toolkit) jako
+silnik przetwarzania danych i renderowania oraz interfejs użytkownika
+wykorzystujący unikalne połączenie Tcl/Tk oraz C++.
+
+Uwaga: ta wersja pakietu została skompilowana bez obsługi MPI.
+
 %package devel
-Summary:	Development files for %{name}
+Summary:	Development files for ParaView
+Summary(pl.UTF-8):	Pliki programistyczne ParaView
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 
 %description devel
-The %{name}-devel package contains libraries and header files for
-developing applications that use %{name}.
+This package contains the header files for developing applications
+that use ParaView.
+
+%description devel -l pl.UTF-8
+Ten pakiet zawiera pliki nagłówkowe do tworzenia aplikacji
+wykorzystujących ParaView.
 
 %prep
 %setup -q -n %{name}-v%{version}-source
@@ -106,12 +133,12 @@ developing applications that use %{name}.
 %patch5 -p1
 #Remove included thirdparty sources just to be sure
 for x in protobuf ; do
-	rm -r ThirdParty/$x/vtk$x
+	%{__rm} -r ThirdParty/$x/vtk$x
 done
 %endif
 
 for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib ; do
-	rm -r VTK/ThirdParty/$x/vtk$x
+	%{__rm} -r VTK/ThirdParty/$x/vtk$x
 done
 
 %{__rm} -r ParaViewCore/ServerImplementation/Default/Testing
@@ -178,8 +205,7 @@ install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir},%{_datadir}/mime/packag
 install %{SOURCE1} $RPM_BUILD_ROOT%{_pixmapsdir}
 install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/mime/packages
 
-cd build
-%{__make} install \
+%{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 #Create desktop file
@@ -233,7 +259,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/pvrenderserver
 %attr(755,root,root) %{_bindir}/pvserver
 %attr(755,root,root) %{_bindir}/smTestDriver
-%dir %{_libdir}/paraview/
+%dir %{_libdir}/paraview
 %attr(755,root,root) %{_libdir}/paraview/paraview
 %attr(755,root,root) %{_libdir}/paraview/pvbatch
 %attr(755,root,root) %{_libdir}/paraview/pvdataserver
