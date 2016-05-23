@@ -6,7 +6,7 @@ Summary:	Parallel visualization application
 Summary(pl.UTF-8):	Aplikacja do równoległej wizualizacji
 Name:		ParaView
 Version:	4.0.1
-Release:	16
+Release:	17
 License:	BSD
 Group:		Applications/Engineering
 Source0:	http://www.paraview.org/files/v4.0/%{name}-v%{version}-source.tgz
