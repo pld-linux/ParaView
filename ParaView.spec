@@ -5,30 +5,23 @@
 Summary:	Parallel visualization application
 Summary(pl.UTF-8):	Aplikacja do równoległej wizualizacji
 Name:		ParaView
-Version:	4.0.1
-Release:	18
+Version:	5.5.0
+Release:	0.1
 License:	BSD
 Group:		Applications/Engineering
-Source0:	http://www.paraview.org/files/v4.0/%{name}-v%{version}-source.tgz
-# Source0-md5:	6a300744eaf32676a3a7e1b42eb642c7
+Source0:	http://www.paraview.org/files/v5.5/%{name}-v%{version}.tar.gz
+# Source0-md5:	a8f2f41edadffdcc89b37fdc9aa7f005
 Source1:	%{name}_22x22.png
 Source2:	%{name}.xml
-Patch0:		%{name}-vtk-use-system-libs.patch
-Patch1:		%{name}-install.patch
-Patch2:		%{name}-system-Protobuf.patch
-Patch3:		%{name}-system-netcdf.patch
-Patch4:		disable-broken-tests.patch
-Patch5:		protobuf.patch
-Patch6:		freetype.patch
 URL:		http://www.paraview.org/
 BuildRequires:	Mesa-libOSMesa-devel
-BuildRequires:	QtDesigner-devel
-BuildRequires:	QtHelp-devel
-BuildRequires:	QtSql-devel
-BuildRequires:	QtSql-sqlite3
-BuildRequires:	QtUiTools-devel
-BuildRequires:	QtXmlPatterns-devel
-BuildRequires:	QtWebKit-devel
+BuildRequires:	Qt5Designer-devel
+BuildRequires:	Qt5Help-devel
+BuildRequires:	Qt5Sql-devel
+BuildRequires:	Qt5Sql-sqldriver-sqlite3
+BuildRequires:	Qt5UiTools-devel
+BuildRequires:	Qt5XmlPatterns-devel
+BuildRequires:	Qt5WebKit-devel
 BuildRequires:	boost-devel
 BuildRequires:	cmake
 BuildRequires:	desktop-file-utils
@@ -48,14 +41,15 @@ BuildRequires:	netcdf-cxx-devel
 BuildRequires:	openssl-devel
 %{?with_system_protobuf:BuildRequires:	protobuf-devel}
 BuildRequires:	python-devel
-BuildRequires:	qt4-build
+BuildRequires:	qt5-assistant
+BuildRequires:	qt5-build
 BuildRequires:	readline-devel
 BuildRequires:	tk-devel
 BuildRequires:	wget
 BuildRequires:	zlib-devel
 Requires(post):	desktop-file-utils
 Requires(postun):	desktop-file-utils
-Requires:	QtSql-sqlite3
+Requires:	Qt5Sql-sqldriver-sqlite3
 %requires_eq_to	hdf5 hdf5-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -121,33 +115,28 @@ Ten pakiet zawiera pliki nagłówkowe do tworzenia aplikacji
 wykorzystujących ParaView.
 
 %prep
-%setup -q -n %{name}-v%{version}-source
-%patch0 -p0
-%patch1 -p1
-%patch3 -p0
-%patch4 -p1
-%patch6 -p1
+%setup -q -n %{name}-v%{version}
 
 %if %{with system_protobuf}
-%patch2 -p1
-%patch5 -p1
 #Remove included thirdparty sources just to be sure
-for x in protobuf ; do
-	%{__rm} -r ThirdParty/$x/vtk$x
-done
+%{__rm} -r ThirdParty/protobuf/vtkprotobuf
 %endif
 
-for x in expat freetype gl2ps hdf5 jpeg libxml2 netcdf oggtheora png sqlite tiff zlib ; do
+for x in expat freetype hdf5 jpeg libxml2 netcdf png sqlite tiff zlib ; do
 	%{__rm} -r VTK/ThirdParty/$x/vtk$x
 done
-
-%{__rm} -r ParaViewCore/ServerImplementation/Default/Testing
 
 %build
 rm -rf build
 mkdir build
 cd build
 %cmake .. \
+	-DCMAKE_CXX_FLAGS="%{rpmcxxflags} -DNDEBUG -DQT_NO_DEBUG" \
+	-DCMAKE_C_FLAGS="%{rpmcflags} -DNDEBUG -DQT_NO_DEBUG" \
+	-DCMAKE_Fortran_FLAGS="%{rpmcflags} -DNDEBUG -DQT_NO_DEBUG" \
+	-DCMAKE_EXE_LINKER_FLAGS="%{rpmldflags}" \
+	-DCMAKE_SHARED_LINKER_FLAGS="%{rpmldflags}" \
+	-DCMAKE_MODULE_LINKER_FLAGS="%{rpmldflags}" \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DCMAKE_CXX_COMPILER:FILEPATH=%{__cxx} \
 	-DCMAKE_C_COMPILER:FILEPATH=%{__cc} \
@@ -156,12 +145,11 @@ cd build
 	-DTCL_LIBRARY:PATH=tcl \
 	-DTK_LIBRARY:PATH=tk \
 	-DPARAVIEW_BUILD_PLUGIN_AdiosReader:BOOL=ON \
-	-DPARAVIEW_BUILD_PLUGIN_CoProcessingScriptGenerator:BOOL=ON \
 	-DPARAVIEW_BUILD_PLUGIN_EyeDomeLighting:BOOL=ON \
-	-DPARAVIEW_BUILD_PLUGIN_ForceTime:BOOL=ON \
 	-DPARAVIEW_ENABLE_PYTHON:BOOL=ON \
-	-DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF \
 	-DPARAVIEW_INSTALL_DEVELOPMENT_FILES:BOOL=ON \
+	-DQT_XMLPATTERNS_EXECUTABLE:FILEPATH=%{_bindir}/xmlpatterns-qt5 \
+	-DQT_HELP_GENERATOR:FILEPATH=%{_bindir}/qhelpgenerator-qt5 \
 	-DVTK_INSTALL_ARCHIVE_DIR:PATH=%{_lib}/paraview \
 	-DVTK_INSTALL_INCLUDE_DIR:PATH=include/paraview \
 	-DVTK_INSTALL_LIBRARY_DIR:PATH=%{_lib}/paraview \
@@ -177,7 +165,10 @@ cd build
 	-DVTK_USE_SYSTEM_HDF5=ON \
 	-DHDF5_HL_LIBRARY:FILEPATH=%{_libdir}/libhdf5_hl.so \
 	-DVTK_USE_SYSTEM_JPEG:BOOL=ON \
-	-DVTK_USE_SYSTEM_LIBPROJ4=OFF \
+	-DVTK_USE_SYSTEM_CGNS:BOOL=OFF \
+	-DVTK_USE_SYSTEM_LIBPROJ4:BOOL=OFF \
+	-DVTK_USE_SYSTEM_JSONCPP:BOOL=OFF \
+	-DVTK_USE_SYSTEM_LIBHARU:BOOL=OFF \
 	-DVTK_USE_SYSTEM_LIBRARIES:BOOL=ON \
 	-DVTK_USE_SYSTEM_LIBRARIES=ON \
 	-DVTK_USE_SYSTEM_PNG:BOOL=ON \
@@ -190,6 +181,7 @@ cd build
 	-DVTK_USE_SYSTEM_NETCDF=ON \
 	-DVTK_USE_SYSTEM_QTTESTING=OFF \
 	-DVTK_USE_SYSTEM_XDMF2=OFF \
+	-DVTK_USE_SYSTEM_GL2PS:BOOL=OFF \
 	-DXDMF_WRAP_PYTHON:BOOL=ON \
 	-DBUILD_DOCUMENTATION:BOOL=ON \
 	-DBUILD_EXAMPLES:BOOL=ON
