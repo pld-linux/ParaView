@@ -11,8 +11,8 @@ License:	BSD
 Group:		Applications/Engineering
 Source0:	http://www.paraview.org/files/v5.5/%{name}-v%{version}.tar.gz
 # Source0-md5:	a8f2f41edadffdcc89b37fdc9aa7f005
-Source1:	%{name}_22x22.png
-Source2:	%{name}.xml
+Source1:	%{name}.xml
+Patch0:		link.patch
 URL:		http://www.paraview.org/
 BuildRequires:	Mesa-libOSMesa-devel
 BuildRequires:	Qt5Designer-devel
@@ -20,8 +20,8 @@ BuildRequires:	Qt5Help-devel
 BuildRequires:	Qt5Sql-devel
 BuildRequires:	Qt5Sql-sqldriver-sqlite3
 BuildRequires:	Qt5UiTools-devel
-BuildRequires:	Qt5XmlPatterns-devel
 BuildRequires:	Qt5WebKit-devel
+BuildRequires:	Qt5XmlPatterns-devel
 BuildRequires:	boost-devel
 BuildRequires:	cmake
 BuildRequires:	desktop-file-utils
@@ -36,8 +36,8 @@ BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
 BuildRequires:	libtheora-devel
 BuildRequires:	libtiff-devel
-BuildRequires:	netcdf-devel
 BuildRequires:	netcdf-cxx-devel
+BuildRequires:	netcdf-devel
 BuildRequires:	openssl-devel
 %{?with_system_protobuf:BuildRequires:	protobuf-devel}
 BuildRequires:	python-devel
@@ -116,6 +116,7 @@ wykorzystujących ParaView.
 
 %prep
 %setup -q -n %{name}-v%{version}
+%patch0 -p1
 
 %if %{with system_protobuf}
 #Remove included thirdparty sources just to be sure
@@ -189,42 +190,33 @@ cd build
 # -DVTK_PYTHON_SETUP_ARGS="--prefix=/usr --root=$RPM_BUILD_ROOT" \
 
 %{__make} VERBOSE=1
+%{__make} DoxygenDoc
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir},%{_datadir}/mime/packages}
+install -d $RPM_BUILD_ROOT%{_datadir}/mime/packages
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_pixmapsdir}
-install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/mime/packages
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/mime/packages
 
 %{__make} -C build install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-#Create desktop file
-cat > $RPM_BUILD_ROOT%{_desktopdir}/%{name}.desktop <<EOF
+# Replace desktop file
+cat > $RPM_BUILD_ROOT%{_desktopdir}/paraview.desktop <<EOF
 [Desktop Entry]
 Encoding=UTF-8
-Name=ParaView Viewer
-GenericName=Data Viewer
-Comment=ParaView allows viewing of large data sets
+Name=ParaView
+Comment=Parallel visualization application
 Type=Application
 Terminal=false
-Icon=ParaView_22x22
+Icon=paraview
 MimeType=application/x-paraview;
 Categories=Application;Graphics;
 Exec=paraview
 EOF
 
-# Move python files by hand for now
-%{__mv} $RPM_BUILD_ROOT%{_bindir}/Python/vtk $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/
-%{__rm} -r $RPM_BUILD_ROOT%{_bindir}/Python
-
-# Install vtk*Python.so by hand for now
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/vtk*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/
-%{__mv} $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/vtk/vtkPV*Python.so $RPM_BUILD_ROOT%{_libdir}/paraview/site-packages/paraview/
-
 # Cleanup vtk conflicting binaries
-%{__rm} $RPM_BUILD_ROOT%{_bindir}/vtk{EncodeString,HashSource,Parse{Java,OGLExt},ProcessShader,Wrap{Hierarchy,Java,Python,Tcl,TclInit,PythonInit}}
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/vtk{ParseJava,Wrap{Hierarchy,Java,Python,PythonInit}}
 
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/paraview/lib*.a
 
@@ -260,41 +252,124 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/paraview/pvserver
 %attr(755,root,root) %{_libdir}/paraview/smTestDriver
 %attr(755,root,root) %{_libdir}/paraview/lib*.so*
-%{_libdir}/paraview/.plugins
-%dir %{_libdir}/paraview/site-packages
-%{_libdir}/paraview/site-packages/autobahn
-%dir %{_libdir}/paraview/site-packages/paraview
-%{_libdir}/paraview/site-packages/paraview/pv_compile_complete
-%{_libdir}/paraview/site-packages/paraview/*.py*
-%attr(755,root,root) %{_libdir}/paraview/site-packages/paraview/*.so
-%{_libdir}/paraview/site-packages/paraview/demos
-%{_libdir}/paraview/site-packages/paraview/vtk
-%{_libdir}/paraview/site-packages/twisted
-%dir %{_libdir}/paraview/site-packages/vtk
-%{_libdir}/paraview/site-packages/vtk/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/gtk
-%{_libdir}/paraview/site-packages/vtk/gtk/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/qt4
-%{_libdir}/paraview/site-packages/vtk/qt4/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/test
-%{_libdir}/paraview/site-packages/vtk/test/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/tk
-%{_libdir}/paraview/site-packages/vtk/tk/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/util
-%{_libdir}/paraview/site-packages/vtk/util/*.py*
-%dir %{_libdir}/paraview/site-packages/vtk/wx
-%{_libdir}/paraview/site-packages/vtk/wx/*.py*
-%{_libdir}/paraview/site-packages/zope
-%{_libdir}/paraview/www
-%{_desktopdir}/ParaView.desktop
-%{_pixmapsdir}/ParaView_22x22.png
+%dir %{_libdir}/paraview/paraview-5.5
+%dir %{_libdir}/paraview/paraview-5.5/plugins
+%{_libdir}/paraview/paraview-5.5/plugins/.plugins
+%dir %{_libdir}/paraview/paraview-5.5/plugins/AcceleratedAlgorithms
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/AcceleratedAlgorithms/libAcceleratedAlgorithms.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/AdiosClientOnly
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/AdiosClientOnly/libAdiosClientOnly.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/AnalyzeNIfTIIO
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/AnalyzeNIfTIIO/libAnalyzeNIfTIIO.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/ArrowGlyph
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/ArrowGlyph/libArrowGlyph.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/CDIReader
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/CDIReader/libCDIReader.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/DigitalRockPhysics
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/DigitalRockPhysics/libDigitalRockPhysics.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/EmbossingRepresentations
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/EmbossingRepresentations/libEmbossingRepresentations.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/EyeDomeLightingView
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/EyeDomeLightingView/libEyeDomeLightingView.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/GMVReader
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/GMVReader/libGMVReader.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/GeodesicMeasurement
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/GeodesicMeasurement/libGeodesicMeasurement.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/LagrangianParticleTracker
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/LagrangianParticleTracker/libLagrangianParticleTracker.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/Moments
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/Moments/libMoments.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/NonOrthogonalSource
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/NonOrthogonalSource/libNonOrthogonalSource.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/PacMan
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/PacMan/libPacMan.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/SLACTools
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/SLACTools/libSLACTools.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/SierraPlotTools
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/SierraPlotTools/libSierraPlotTools.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/StreamLinesRepresentation
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/StreamLinesRepresentation/libStreamLinesRepresentation.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/StreamingParticles
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/StreamingParticles/libStreamingParticles.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/SurfaceLIC
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/SurfaceLIC/libSurfaceLIC.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/ThickenLayeredCells
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/ThickenLayeredCells/libThickenLayeredCells.so
+%dir %{_libdir}/paraview/paraview-5.5/plugins/VTKmFilters
+%attr(755,root,root) %{_libdir}/paraview/paraview-5.5/plugins/VTKmFilters/libVTKmFilters.so
+%dir %{_libdir}/paraview/python*
+%dir %{_libdir}/paraview/python*/site-packages
+%{_libdir}/paraview/python*/site-packages/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python
+%{_libdir}/paraview/python*/site-packages/cinema_python/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python/adaptors
+%{_libdir}/paraview/python*/site-packages/cinema_python/adaptors/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python/adaptors/paraview
+%{_libdir}/paraview/python*/site-packages/cinema_python/adaptors/paraview/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python/adaptors/vtk
+%{_libdir}/paraview/python*/site-packages/cinema_python/adaptors/vtk/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python/database
+%{_libdir}/paraview/python*/site-packages/cinema_python/database/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/cinema_python/images
+%{_libdir}/paraview/python*/site-packages/cinema_python/images/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/paraview
+%{_libdir}/paraview/python*/site-packages/paraview/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/paraview/benchmark
+%{_libdir}/paraview/python*/site-packages/paraview/benchmark/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/paraview/demos
+%{_libdir}/paraview/python*/site-packages/paraview/demos/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/paraview/web
+%{_libdir}/paraview/python*/site-packages/paraview/web/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/pygments
+%{_libdir}/paraview/python*/site-packages/pygments/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/pygments/filters
+%{_libdir}/paraview/python*/site-packages/pygments/filters/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/pygments/formatters
+%{_libdir}/paraview/python*/site-packages/pygments/formatters/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/pygments/lexers
+%{_libdir}/paraview/python*/site-packages/pygments/lexers/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/pygments/styles
+%{_libdir}/paraview/python*/site-packages/pygments/styles/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules
+%{_libdir}/paraview/python*/site-packages/vtkmodules/*.py*
+%attr(755,root,root) %{_libdir}/paraview/python*/site-packages/vtkmodules/*.so
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/gtk
+%{_libdir}/paraview/python*/site-packages/vtkmodules/gtk/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/numpy_interface
+%{_libdir}/paraview/python*/site-packages/vtkmodules/numpy_interface/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/qt
+%{_libdir}/paraview/python*/site-packages/vtkmodules/qt/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/qt4
+%{_libdir}/paraview/python*/site-packages/vtkmodules/qt4/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/test
+%{_libdir}/paraview/python*/site-packages/vtkmodules/test/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/tk
+%{_libdir}/paraview/python*/site-packages/vtkmodules/tk/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/util
+%{_libdir}/paraview/python*/site-packages/vtkmodules/util/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/web
+%{_libdir}/paraview/python*/site-packages/vtkmodules/web/*.py*
+%dir %{_libdir}/paraview/python*/site-packages/vtkmodules/wx
+%{_libdir}/paraview/python*/site-packages/vtkmodules/wx/*.py*
+%{_desktopdir}/paraview.desktop
+%{_datadir}/appdata/paraview.appdata.xml
+%{_iconsdir}/hicolor/*/apps/paraview.png
 %{_datadir}/mime/packages/ParaView.xml
-%dir %{_datadir}/doc/paraview-4.0
-%{_datadir}/doc/paraview-4.0/paraview.qch
+%dir %{_docdir}/paraview-5.5
+%{_docdir}/paraview-5.5/doxygen
+%{_docdir}/paraview-5.5/verdict
+%{_docdir}/paraview-5.5/paraview.qch
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/vtkkwProcessXML
 %attr(755,root,root) %{_bindir}/vtkWrapClientServer
+%attr(755,root,root) %{_bindir}/paraview-config
+%attr(755,root,root) %{_bindir}/vtkLegacyColorMapXMLToJSON
 %{_includedir}/paraview
 %{_datadir}/cmake/paraview
+%{_libdir}/paraview/paraview-config
+%{_libdir}/paraview/vtkLegacyColorMapXMLToJSON
+#%{_prefix}/lib/cmake/qttesting/ParaViewTargets-relwithdebinfo.cmake
+#%{_prefix}/lib/cmake/qttesting/ParaViewTargets.cmake
+#%{_prefix}/lib/cmake/qttesting/QtTestingConfig.cmake

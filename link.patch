@@ -1,0 +1,34 @@
+--- ParaView-v5.5.0/VTK/IO/Movie/CMakeLists.txt.orig	2018-05-19 22:04:46.664799058 +0900
++++ ParaView-v5.5.0/VTK/IO/Movie/CMakeLists.txt	2018-05-19 22:10:52.902662668 +0900
+@@ -30,6 +30,10 @@
+ 
+ vtk_module_library(vtkIOMovie ${Module_SRCS})
+ 
++if(vtkIOMovie_vtkoggtheora)
++  vtk_module_link_libraries(vtkIOMovie LINK_PRIVATE ogg)
++endif()
++
+ if(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+   vtk_module_link_libraries(vtkIOMovie LINK_PRIVATE vfw32)
+ endif()
+--- ParaView-v5.5.0/VTK/ThirdParty/exodusII/vtkexodusII/CMakeLists.txt~	2018-04-07 05:03:33.000000000 +0900
++++ ParaView-v5.5.0/VTK/ThirdParty/exodusII/vtkexodusII/CMakeLists.txt	2018-05-19 23:50:03.422129590 +0900
+@@ -299,6 +299,7 @@
+ 
+ vtk_add_library(vtkexodusII ${sources} ${headers})
+ target_link_libraries(vtkexodusII PUBLIC ${vtknetcdf_LIBRARIES})
++target_link_libraries(vtkexodusII PUBLIC pthread)
+ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+   install(FILES
+     ${headers}
+--- ParaView-v5.5.0/VTK/ThirdParty/libharu/vtklibharu/src/CMakeLists.txt~	2018-04-07 05:03:33.000000000 +0900
++++ ParaView-v5.5.0/VTK/ThirdParty/libharu/vtklibharu/src/CMakeLists.txt	2018-05-20 00:08:37.470651046 +0900
+@@ -102,7 +102,7 @@
+ endif(LIBHPDF_SHARED)
+ else ()
+   vtk_add_library(vtklibharu ${LIBHPDF_SRCS})
+-  target_link_libraries(vtklibharu PRIVATE ${vtkzlib_LIBRARIES} ${vtkpng_LIBRARIES})
++  target_link_libraries(vtklibharu PRIVATE ${vtkzlib_LIBRARIES} ${vtkpng_LIBRARIES} m)
+   if (WIN32)
+     set_target_properties(vtklibharu
+       PROPERTIES
