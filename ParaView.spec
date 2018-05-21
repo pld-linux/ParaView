@@ -1,4 +1,8 @@
 #
+# TODO:
+#  - does not build on i86 and x32 due to type size assumptions (needs patch)
+#  - paraview binary segfaults on x8664
+#
 # Conditional build:
 %bcond_with	system_protobuf		# build with system protobuf library
 #
